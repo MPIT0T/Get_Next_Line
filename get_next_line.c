@@ -6,18 +6,18 @@
 /*   By: mpitot <mpitot@student.42lyon.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/16 10:34:55 by mpitot            #+#    #+#             */
-/*   Updated: 2023/11/16 17:01:37 by mpitot           ###   ########.fr       */
+/*   Updated: 2023/11/16 20:14:14 by mpitot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-size_t	ft_endlcheck(char *str, int sz)
+size_t	ft_endlcheck(char *str)
 {
 	size_t	i;
 
 	i = 0;
-	while (i < (size_t) sz)
+	while (str[i])
 	{
 		if (str[i] == '\n')
 			return (1);
@@ -48,38 +48,40 @@ char	*ft_resultline(char *str)
 	return (res);
 }
 
-char	*ft_cleanbuffer(char *str, char *res)
+void	ft_cleanbuffer(char *str, char *res)
 {
 	size_t	i;
+	size_t	j;
+	char	*new;
 
 	i = 0;
-	while (str[i])
-	{
-		if (res[i])
-			str[i] = res[i];
-		else
-			str[i] = '\0';
+	j = ft_strlen(res);
+	while (str[j++])
 		i++;
-	}
+	new = malloc(sizeof(char) * i + 1);
+
 }
 
 char	*ft_read(int fd)
 {
 	static size_t	i;
 	size_t	sz;
+	static char	left[BUFFER_SIZE];
 	char	str[BUFFER_SIZE];
-	char	*res;
+	char	*line;
 
 	sz = 1;
 	ft_bzero(str, BUFFER_SIZE);
+	i = ft_strlen(str);
 	while (sz > 0)
 	{
-		sz = read(fd, str, BUFFER_SIZE - 1 - ft_strlen(str));
+		sz = read(fd, str, BUFFER_SIZE - 1);
 		if (ft_endlcheck(str, sz))
 		{
 			res = ft_resultline(str);
 			if (!res)
 				return (NULL);
+			ft_cleanbuffer(str,res);
 			return (res);
 		}
 	}
@@ -87,16 +89,38 @@ char	*ft_read(int fd)
 
 char	*get_next_line(int fd)
 {
-	static size_t	i;
+	static char	*left;
+	char		str[BUFFER_SIZE];
+	char		*line;
+	int			sz;
 
-
+	if (left && ft_endlcheck(left))
+		return (ft_resultline(left));
+	sz = 1;
+	while (sz > 0)
+	{
+		sz = read(fd, str, BUFFER_SIZE);
+		str[sz] = '\0';
+		left = ft_strjoin(left, str);
+		if (!left)
+			return (NULL);
+		if (ft_endlcheck(left))
+		{
+			res = ft_resultline(left);
+			if (!res)
+				return (free(left), NULL);
+			ft_cleanbuffer(left,res);
+			return (res);
+		}
+	}
 }
 
 int	main(int argc, char **argv)
 {
 	(void) argc;
 	int fd = open("test.txt", O_RDONLY);
-	printf("%s", ft_read(fd));
+	printf("first line : %s\n", ft_read(fd));
+	printf("second line : %s\n", ft_read(fd));
 	close(fd);
 	return (1);
 }
