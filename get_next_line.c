@@ -6,121 +6,112 @@
 /*   By: mpitot <mpitot@student.42lyon.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/16 10:34:55 by mpitot            #+#    #+#             */
-/*   Updated: 2023/11/16 20:14:14 by mpitot           ###   ########.fr       */
+/*   Updated: 2023/11/17 17:55:06 by mpitot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-size_t	ft_endlcheck(char *str)
+char	*ft_join_n_free(char *s1, char *s2)
 {
-	size_t	i;
-
-	i = 0;
-	while (str[i])
-	{
-		if (str[i] == '\n')
-			return (1);
-		i++;
-	}
-	return (0);
-}
-
-char	*ft_resultline(char *str)
-{
-	char	*res;
-	size_t	i;
-
-	i = 0;
-	while (str[i] != '\n' && str[i])
-		i++;
-	res = malloc(sizeof(char) * (i + 2));
-	if (!res)
-		return (NULL);
-	i = 0;
-	while (str[i] != '\n' && str[i])
-	{
-		res[i] = str[i];
-		i++;
-	}
-	str[i] = '\n';
-	str[i + 1] = '\0';
-	return (res);
-}
-
-void	ft_cleanbuffer(char *str, char *res)
-{
-	size_t	i;
-	size_t	j;
 	char	*new;
 
+	new = ft_strjoin(s1, s2);
+	free(s1);
+	return (new);
+}
+
+char	*ft_update_buff(char *buffer)
+{
+	char	*new;
+	char	*ptr;
+	size_t	i;
+
+	ptr = ft_strchr(buffer, '\n');
+	new = ft_calloc(ft_strlen(ptr) + 1, sizeof(char));
+	if (!new)
+		return (NULL);
 	i = 0;
-	j = ft_strlen(res);
-	while (str[j++])
-		i++;
-	new = malloc(sizeof(char) * i + 1);
-
-}
-
-char	*ft_read(int fd)
-{
-	static size_t	i;
-	size_t	sz;
-	static char	left[BUFFER_SIZE];
-	char	str[BUFFER_SIZE];
-	char	*line;
-
-	sz = 1;
-	ft_bzero(str, BUFFER_SIZE);
-	i = ft_strlen(str);
-	while (sz > 0)
+	while (ptr[i])
 	{
-		sz = read(fd, str, BUFFER_SIZE - 1);
-		if (ft_endlcheck(str, sz))
-		{
-			res = ft_resultline(str);
-			if (!res)
-				return (NULL);
-			ft_cleanbuffer(str,res);
-			return (res);
-		}
+		new[i] = ptr[i];
+		i++;
 	}
+	free(buffer);
+	return (new);
 }
 
-char	*get_next_line(int fd)
+char	*ft_line(char *buffer)
 {
-	static char	*left;
-	char		str[BUFFER_SIZE];
-	char		*line;
-	int			sz;
+	char	*new;
+	size_t	i;
+	size_t	size;
 
-	if (left && ft_endlcheck(left))
-		return (ft_resultline(left));
+	size = ft_strlen(buffer) - ft_strlen(ft_strchr(buffer, '\n'));
+	new = ft_calloc(size + 1, sizeof(char));
+	if (!new)
+		return (NULL);
+	i = 0;
+	while (i < size)
+	{
+		new[i] = buffer[i];
+		i++;
+	}
+	return (new);
+}
+
+char	*ft_read(int fd, char *buffer)
+{
+	int		sz;
+	char	*str;
+
+	if (!buffer)
+		buffer = ft_calloc(1, sizeof(char));
+	str = ft_calloc(BUFFER_SIZE + 1, sizeof(char));
+	if (!str)
+		return (NULL);
 	sz = 1;
 	while (sz > 0)
 	{
 		sz = read(fd, str, BUFFER_SIZE);
+		if (sz == -1)
+			return (free(str), NULL);
 		str[sz] = '\0';
-		left = ft_strjoin(left, str);
-		if (!left)
-			return (NULL);
-		if (ft_endlcheck(left))
-		{
-			res = ft_resultline(left);
-			if (!res)
-				return (free(left), NULL);
-			ft_cleanbuffer(left,res);
-			return (res);
-		}
+		buffer = ft_join_n_free(buffer, str);
+		if (!buffer)
+			return (free(str), NULL);
+		if (ft_strchr(buffer, '\n'))
+			break ;
 	}
+	return (str);
+}
+
+char *get_next_line(int fd)
+{
+	static char	*buffer;
+	char	*line;
+
+	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
+		return (NULL);
+	buffer = ft_read(fd, buffer);
+	if (!buffer)
+		return (NULL);
+	write(1, "A", 1);
+	line = ft_line(buffer);
+	if (!line)
+		return (free(buffer), NULL);
+	buffer = ft_update_buff(buffer);
+	if (!buffer)
+		return (free(line), NULL);
+	return (line);
 }
 
 int	main(int argc, char **argv)
 {
 	(void) argc;
 	int fd = open("test.txt", O_RDONLY);
-	printf("first line : %s\n", ft_read(fd));
-	printf("second line : %s\n", ft_read(fd));
+	printf("first line : %s\n", get_next_line(fd));
+	printf("second line : %s\n", get_next_line(fd));
 	close(fd);
 	return (1);
 }

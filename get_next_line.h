@@ -6,7 +6,7 @@
 /*   By: mpitot <mpitot@student.42lyon.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/16 10:33:31 by mpitot            #+#    #+#             */
-/*   Updated: 2023/11/16 17:01:37 by mpitot           ###   ########.fr       */
+/*   Updated: 2023/11/17 17:07:25 by mpitot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,9 @@
 
 # include <unistd.h>
 # include <stdlib.h>
-#include <stdio.h>
-#include <fcntl.h>
+# include <stdio.h>
+# include <fcntl.h>
+# include <stdint.h>
 
 # define BUFFER_SIZE 1024
 
@@ -26,5 +27,7 @@ char	*get_next_line(int fd);
 char	*ft_strjoin(const char *s1, const char *s2);
 
 size_t	ft_strlen(const char *s);
+char	*ft_strchr(const char *s, int c);
+void	*ft_calloc(size_t nmemb, size_t size);
 
 #endif //GET_NEXT_LINE_GET_NEXT_LINE_H

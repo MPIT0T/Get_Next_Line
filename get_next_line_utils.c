@@ -51,6 +51,22 @@ char	*ft_strjoin(const char *s1, const char *s2)
 	return (nstr);
 }
 
+char	*ft_strchr(const char *s, int c)
+{
+	size_t	i;
+
+	i = 0;
+	while (s[i])
+	{
+		if (s[i] == (unsigned char) c)
+			return (&((char *) s)[i]);
+		i++;
+	}
+	if ((unsigned char) c == 0)
+		return (&((char *) s)[i]);
+	return (NULL);
+}
+
 void	ft_bzero(void *s, size_t n)
 {
 	size_t	i;
@@ -61,4 +77,27 @@ void	ft_bzero(void *s, size_t n)
 		((char *) s)[i] = 0;
 		i++;
 	}
+}
+
+void	*ft_calloc(size_t nmemb, size_t size)
+{
+	void	*ptr;
+
+	if (size != 0 && nmemb > SIZE_MAX / size)
+		return (NULL);
+	if (nmemb == 0 && size == 0)
+	{
+		ptr = malloc(sizeof(char));
+		if (!ptr)
+			return (NULL);
+		((char *) ptr)[0] = '\0';
+	}
+	else
+	{
+		ptr = malloc(size * nmemb);
+		if (!ptr)
+			return (NULL);
+		ft_bzero(ptr, nmemb * size);
+	}
+	return (ptr);
 }
