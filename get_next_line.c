@@ -6,7 +6,7 @@
 /*   By: mpitot <mpitot@student.42lyon.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/16 10:34:55 by mpitot            #+#    #+#             */
-/*   Updated: 2023/11/17 17:55:06 by mpitot           ###   ########.fr       */
+/*   Updated: 2023/11/18 17:09:46 by mpitot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ char	*ft_read(int fd, char *buffer)
 	return (str);
 }
 
-char *get_next_line(int fd)
+char	*get_next_line(int fd)
 {
 	static char	*buffer;
 	char	*line;
@@ -94,9 +94,9 @@ char *get_next_line(int fd)
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
 		return (NULL);
 	buffer = ft_read(fd, buffer);
+	printf("%p", buffer);
 	if (!buffer)
 		return (NULL);
-	write(1, "A", 1);
 	line = ft_line(buffer);
 	if (!line)
 		return (free(buffer), NULL);
