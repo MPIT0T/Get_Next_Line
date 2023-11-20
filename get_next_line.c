@@ -6,7 +6,7 @@
 /*   By: mpitot <mpitot@student.42lyon.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/16 10:34:55 by mpitot            #+#    #+#             */
-/*   Updated: 2023/11/18 17:09:46 by mpitot           ###   ########.fr       */
+/*   Updated: 2023/11/20 17:07:58 by mpitot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,19 +24,21 @@ char	*ft_join_n_free(char *s1, char *s2)
 char	*ft_update_buff(char *buffer)
 {
 	char	*new;
-	char	*ptr;
 	size_t	i;
+	size_t	j;
 
-	ptr = ft_strchr(buffer, '\n');
-	new = ft_calloc(ft_strlen(ptr) + 1, sizeof(char));
+	i = 0;
+	while (buffer[i] && buffer[i] != '\n')
+		i++;
+	if (!buffer[i])
+		return (free(buffer), NULL);
+	new = ft_calloc(ft_strlen(buffer) - i + 1, sizeof(char));
 	if (!new)
 		return (NULL);
-	i = 0;
-	while (ptr[i])
-	{
-		new[i] = ptr[i];
-		i++;
-	}
+	i++;
+	j = 0;
+	while (buffer[i])
+		new[j++] = buffer[i++];
 	free(buffer);
 	return (new);
 }
@@ -47,7 +49,9 @@ char	*ft_line(char *buffer)
 	size_t	i;
 	size_t	size;
 
-	size = ft_strlen(buffer) - ft_strlen(ft_strchr(buffer, '\n'));
+	size = 0;
+	while (buffer[size] != '\n')
+		size++;
 	new = ft_calloc(size + 1, sizeof(char));
 	if (!new)
 		return (NULL);
@@ -77,10 +81,10 @@ char	*ft_read(int fd, char *buffer)
 		if (sz == -1)
 			return (free(str), NULL);
 		str[sz] = '\0';
-		buffer = ft_join_n_free(buffer, str);
-		if (!buffer)
+		str = ft_join_n_free(buffer, str);
+		if (!str)
 			return (free(str), NULL);
-		if (ft_strchr(buffer, '\n'))
+		if (ft_strchr(str, '\n'))
 			break ;
 	}
 	return (str);
@@ -94,15 +98,10 @@ char	*get_next_line(int fd)
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
 		return (NULL);
 	buffer = ft_read(fd, buffer);
-	printf("%p", buffer);
 	if (!buffer)
 		return (NULL);
 	line = ft_line(buffer);
-	if (!line)
-		return (free(buffer), NULL);
 	buffer = ft_update_buff(buffer);
-	if (!buffer)
-		return (free(line), NULL);
 	return (line);
 }
 
@@ -110,8 +109,13 @@ int	main(int argc, char **argv)
 {
 	(void) argc;
 	int fd = open("test.txt", O_RDONLY);
-	printf("first line : %s\n", get_next_line(fd));
-	printf("second line : %s\n", get_next_line(fd));
+	printf("%s\n", get_next_line(fd));
+	printf("%s\n", get_next_line(fd));
+	printf("%s\n", get_next_line(fd));
+	printf("%s\n", get_next_line(fd));
+	//get_next_line(fd);
+	//write(1, "\n\n", 2);
+	//get_next_line(fd);
 	close(fd);
 	return (1);
 }
