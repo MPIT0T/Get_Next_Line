@@ -6,7 +6,7 @@
 /*   By: mpitot <mpitot@student.42lyon.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/16 10:34:55 by mpitot            #+#    #+#             */
-/*   Updated: 2023/11/20 17:07:58 by mpitot           ###   ########.fr       */
+/*   Updated: 2023/11/21 18:00:30 by mpitot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,8 +50,10 @@ char	*ft_line(char *buffer)
 	size_t	size;
 
 	size = 0;
-	while (buffer[size] != '\n')
+	while (buffer[size] != '\n' && buffer[size])
 		size++;
+	if (size == 0)
+		return (NULL);
 	new = ft_calloc(size + 1, sizeof(char));
 	if (!new)
 		return (NULL);
@@ -109,13 +111,21 @@ int	main(int argc, char **argv)
 {
 	(void) argc;
 	int fd = open("test.txt", O_RDONLY);
-	printf("%s\n", get_next_line(fd));
-	printf("%s\n", get_next_line(fd));
-	printf("%s\n", get_next_line(fd));
-	printf("%s\n", get_next_line(fd));
-	//get_next_line(fd);
-	//write(1, "\n\n", 2);
-	//get_next_line(fd);
+	char *str1 = get_next_line(fd);
+	char *str2 = get_next_line(fd);
+	char *str3 = get_next_line(fd);
+	char *str4 = get_next_line(fd);
+	printf("%s\n", str1);
+	printf("%s\n", str2);
+	printf("%s\n", str3);
+	if (str4)
+		printf("%s\n", str4);
+	else
+		printf("(null)\n");
+	free(str1);
+	free(str2);
+	free(str3);
+	free(str4);
 	close(fd);
 	return (1);
 }
